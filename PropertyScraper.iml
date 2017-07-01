@@ -11,5 +11,6 @@
     <orderEntry type="library" name="jxl" level="project" />
     <orderEntry type="library" name="selenium-java-3.4" level="project" />
     <orderEntry type="library" name="cglib-nodep-3.2.4" level="project" />
+    <orderEntry type="library" name="jsoup-1.10.3" level="project" />
   </component>
 </module>
