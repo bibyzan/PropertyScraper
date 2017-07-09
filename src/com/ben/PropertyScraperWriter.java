@@ -23,18 +23,22 @@ public class PropertyScraperWriter {
 	private WritableWorkbook workbook;
 	private WritableSheet currentSheet;
 
-	public PropertyScraperWriter() throws Exception {
-		this.original = Workbook.getWorkbook(new File("Property Template.xls"));
-		this.workbook = Workbook.createWorkbook(new File("scraped properties.xls"), this.original);
-		this.currentSheet = this.workbook.getSheet(0);
-		this.rowIndex = 1;
+	public PropertyScraperWriter() {
+		try {
+			this.original = Workbook.getWorkbook(new File("Property Template.xls"));
+			this.workbook = Workbook.createWorkbook(new File("scraped properties.xls"), this.original);
+			this.currentSheet = this.workbook.getSheet(0);
+			this.rowIndex = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void closeWriter() throws Exception {
 		this.workbook.write();
 		this.workbook.close();
 		this.original.close();
-}
+	}
 	public boolean hasNext() {
 		return !this.currentFullAddress().equals("");
 	}
@@ -117,16 +121,4 @@ public class PropertyScraperWriter {
 		}
 	}
 
-	public static void main(String[] args) {
-		try {
-			Workbook workbook = Workbook.getWorkbook(new File("Property Template.xls"));
-
-			Sheet sheet = workbook.getSheet(0);
-			Cell cell = sheet.getCell(0,19);
-
-			System.out.println(cell.getContents());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

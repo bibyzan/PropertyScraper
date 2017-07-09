@@ -14,24 +14,29 @@ import javax.swing.*;
 public class PropertyScraperRunner {
 	private PropertyScraperWriter excelFile;
 	private WebDriver driver;
+	private boolean closed = true;
 
 	public PropertyScraperRunner() {
 		try {
 			this.excelFile = new PropertyScraperWriter();
 		} catch (Exception e) {
-			PropertyScraperWindow.log.add("Failed loading excel addresses. Check the xls file");
+			Main.log.add("Failed loading excel addresses. Check the xls file");
 			System.exit(1);
 		}
 	}
 
 	public void openBrowser() {
+		this.closed = false;
 		System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
 		//System.setProperty("webdriver.gecko.driver", "geckodriver.exe");
 		this.driver = new ChromeDriver();
 	}
 
 	public void close() {
-		driver.close();
+		if (this.driver != null && !this.closed) {
+			this.driver.close();
+			this.closed = true;
+		}
 	}
 
 	public void go(ProgressBar progressBar) {
@@ -60,18 +65,18 @@ public class PropertyScraperRunner {
 				} else if (county.equals("Clermont")) {
 					clermont++;
 				} else if (county.equals("Kenton")) {
-					com.ben.PropertyScraperWindow.log.add(excelFile.currentFullAddress());
+					com.ben.Main.log.add(excelFile.currentFullAddress());
 					kenton++;
 				} else if (county.equals("Butler")) {
 					butler++;
 				} else {
 					other++;
-					com.ben.PropertyScraperWindow.log.add("No function for getting info from: " + county);
+					com.ben.Main.log.add("No function for getting info from: " + county);
 				}*/
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				PropertyScraperWindow.log.add("Error finding zip");
+				Main.log.add("Error finding zip");
 				this.excelFile.incrementRow();
 			}
 
@@ -82,7 +87,7 @@ public class PropertyScraperRunner {
 			this.excelFile.closeWriter();
 		} catch (Exception e) {
 			e.printStackTrace();
-			PropertyScraperWindow.log.add("Welp you almost made it");
+			Main.log.add("Welp you almost made it");
 		}
 		this.close();
 	}
@@ -142,25 +147,25 @@ public class PropertyScraperRunner {
 			driver.manage().timeouts().implicitlyWait(25, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
-			PropertyScraperWindow.log.add("Error filling out form");
+			Main.log.add("Error filling out form");
 			this.excelFile.incrementRow();
 		}
 
 		try {
 			if (driver.findElement(By.xpath("//*[@id=\"search-results\"]/tbody/tr/td")).getText().equals("No data available in table")) {
-				PropertyScraperWindow.log.add("No results, continuing...");
+				Main.log.add("No results, continuing...");
 				this.excelFile.incrementRow();
 				return;
 			}
 		} catch (Exception e) {
-			PropertyScraperWindow.log.add("No empty table found trying to read info, continuing...");
+			Main.log.add("No empty table found trying to read info, continuing...");
 		}
 
 		try {
 			driver.findElement(By.xpath("//*[@id=\"search-results\"]/tbody/tr[1]")).click();
 			driver.manage().timeouts().implicitlyWait(25, TimeUnit.MILLISECONDS);
 		} catch (Exception e) {
-			PropertyScraperWindow.log.add("No multiple results found, continuing...");
+			Main.log.add("No multiple results found, continuing...");
 		}
 
 		try {
@@ -188,9 +193,9 @@ public class PropertyScraperRunner {
 			this.excelFile.writeColumnCell(17, marketImprovementValue);
 			this.excelFile.incrementRow();
 		} catch (Exception e) {
-			PropertyScraperWindow.log.add("Attempted searching: " + houseNumber + " " + streetName);
+			Main.log.add("Attempted searching: " + houseNumber + " " + streetName);
 			e.printStackTrace();
-			PropertyScraperWindow.log.add("Continuing...");
+			Main.log.add("Continuing...");
 			this.excelFile.incrementRow();
 		}
 
@@ -200,21 +205,5 @@ public class PropertyScraperRunner {
 		return this.excelFile;
 	}
 
-    public static void main(String[] args) throws Exception {
-		long start = System.currentTimeMillis();
 
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		PropertyScraperRunner runner = new PropertyScraperRunner();
-		//runner.runKentonProperty("725","Dalton");
-		//runner.go();
-		long elapsedTimeMillis = System.currentTimeMillis() - start;
-		float elapsedTimeSec = elapsedTimeMillis/1000F;
-		//com.ben.PropertyScraperWindow.log.add(elapsedTimeSec);
-		//runner.runHamiltonProperty("2604", "Hackberry");
-    }
 }
